@@ -32,7 +32,7 @@ And move all wav files to `LJSpeech-1.1/wavs`
 
 ## Training
 ```
-python train.py --config config_v1.json
+python train.py --config config/config_v1.json
 ```
 To train V2 or V3 Generator, replace `config_v1.json` with `config_v2.json` or `config_v3.json`.<br>
 Checkpoints and copy of the configuration file are saved in `cp_hifigan` directory by default.<br>

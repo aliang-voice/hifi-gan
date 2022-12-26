@@ -9,6 +9,9 @@ LRELU_SLOPE = 0.1
 
 
 class ResBlock1(torch.nn.Module):
+    """
+    残差盒子
+    """
     def __init__(self, h, channels, kernel_size=3, dilation=(1, 3, 5)):
         super(ResBlock1, self).__init__()
         self.h = h

@@ -109,13 +109,20 @@ class MelDataset(torch.utils.data.Dataset):
         self.base_mels_path = base_mels_path
 
     def __getitem__(self, index):
+        # 获取文件名字
         filename = self.audio_files[index]
+
+        # 判断是否由cache
         if self._cache_ref_count == 0:
-            audio, sampling_rate = load_wav(filename)
+            audio, sampling_rate = load_wav(filename)   # 加载音频， 音频，和采样率
             audio = audio / MAX_WAV_VALUE
-            if not self.fine_tuning:
+            if not self.fine_tuning:                    # 假如fine tuning，则正则
                 audio = normalize(audio) * 0.95
-            self.cached_wav = audio
+
+            # 缓存audio
+            self.cached_wav = audio                     # 加载到缓存内
+
+            # 判断采样比例是否与设置的采样比例一样
             if sampling_rate != self.sampling_rate:
                 raise ValueError("{} SR doesn't match target {} SR".format(
                     sampling_rate, self.sampling_rate))
@@ -124,12 +131,14 @@ class MelDataset(torch.utils.data.Dataset):
             audio = self.cached_wav
             self._cache_ref_count -= 1
 
+        # 转成floattensor
         audio = torch.FloatTensor(audio)
+        # 去除零维度
         audio = audio.unsqueeze(0)
 
         if not self.fine_tuning:
-            if self.split:
-                if audio.size(1) >= self.segment_size:
+            if self.split:              # 判断是否分割
+                if audio.size(1) >= self.segment_size:      #
                     max_audio_start = audio.size(1) - self.segment_size
                     audio_start = random.randint(0, max_audio_start)
                     audio = audio[:, audio_start:audio_start+self.segment_size]
@@ -162,6 +171,7 @@ class MelDataset(torch.utils.data.Dataset):
                                    self.sampling_rate, self.hop_size, self.win_size, self.fmin, self.fmax_loss,
                                    center=False)
 
+        # mel 频谱图， audio
         return (mel.squeeze(), audio.squeeze(0), filename, mel_loss.squeeze())
 
     def __len__(self):
